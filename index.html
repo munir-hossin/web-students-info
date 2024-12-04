@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>তথ্য তালিকা</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="container mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <h1 class="text-center text-3xl font-bold mb-6 text-gray-800">তথ্য তালিকা</h1>
+    <button id="addItemBtn" class="mb-4 bg-gray-300 hover:bg-gray-500  py-2 px-4 rounded">Add new Info</button>
+    <div class="overflow-x-auto">
+      <table class="min-w-full table-auto border-collapse border border-gray-300">
+        <thead>
+          <tr class="bg-gray-200 text-gray-700">
+            <th class="border border-gray-300 px-4 py-2 text-center">ক্রমিক নং</th>
+            <th class="border border-gray-300 px-4 py-2 text-center">নাম</th>
+            <th class="border border-gray-300 px-4 py-2 text-center">বর্তমান অবস্থা</th>
+            <th class="border border-gray-300 px-4 py-2 text-center">প্রত্যাশিত অবস্থা</th>
+            <th class="border border-gray-300 px-4 py-2 text-center">অ্যাকশন</th>
+          </tr>
+        </thead>
+        <tbody id="nameTableBody">
+          <!-- Table rows will be generated dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center hidden">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+      <h2 id="modalTitle" class="text-xl font-bold mb-4">নতুন ঠিকানা যোগ করুন</h2>
+      <form id="itemForm">
+        <input id="itemId" type="number" placeholder="ক্রমিক নং" class="mb-4 w-full px-4 py-2 border rounded" required>
+        <input id="itemName" type="text" placeholder="নাম" class="mb-4 w-full px-4 py-2 border rounded" required>
+        <input id="itemCurrentStatus" type="text" placeholder="বর্তমান অবস্থা" class="mb-4 w-full px-4 py-2 border rounded" required>
+        <input id="itemExpectedStatus" type="text" placeholder="প্রত্যাশিত অবস্থা" class="mb-4 w-full px-4 py-2 border rounded" required>
+        <div class="flex justify-end">
+          <button type="button" id="closeModal" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2">Cancel</button>
+          <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let data = JSON.parse(localStorage.getItem('addressData')) || [
+      { id: 1, name: 'মোহাম্মদ আমিন', currentStatus: '', expectedStatus: '' },
+      { id: 2, name: 'মাহমুদ হাসান', currentStatus: '', expectedStatus: '' },
+    ];
+
+    let editIndex = null; // Track the index of the item being edited
+    const tableBody = document.getElementById('nameTableBody');
+    const modal = document.getElementById('modal');
+    const addItemBtn = document.getElementById('addItemBtn');
+    const closeModalBtn = document.getElementById('closeModal');
+    const itemForm = document.getElementById('itemForm');
+
+    // Function to render table
+    function renderTable() {
+      tableBody.innerHTML = '';
+      data.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-100';
+        row.innerHTML = `
+          <td class="border border-gray-300 px-4 py-2 text-center">${item.id}</td>
+          <td class="border border-gray-300 px-4 py-2 text-center">${item.name}</td>
+          <td class="border border-gray-300 px-4 py-2 text-center">${item.currentStatus}</td>
+          <td class="border border-gray-300 px-4 py-2 text-center">${item.expectedStatus}</td>
+          <td class="border border-gray-300 px-4 py-2 text-center">
+            <button onclick="editItem(${index})" class="bg-gray-300 hover:bg-gray-500  font-bold py-1 px-2 rounded">Edit</button>
+            <button onclick="deleteItem(${index})" class="bg-gray-300 hover:bg-gray-500  font-bold py-1 px-2 rounded">Delete</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Open modal for adding new item
+    addItemBtn.addEventListener('click', () => {
+      editIndex = null; // Reset the edit index
+      document.getElementById('modalTitle').innerText = 'নতুন ঠিকানা যোগ করুন';
+      itemForm.reset();
+      modal.classList.remove('hidden');
+    });
+
+    // Close modal
+    closeModalBtn.addEventListener('click', () => {
+      modal.classList.add('hidden');
+    });
+
+    // Add or update item
+    itemForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newItem = {
+        id: document.getElementById('itemId').value,
+        name: document.getElementById('itemName').value,
+        currentStatus: document.getElementById('itemCurrentStatus').value,
+        expectedStatus: document.getElementById('itemExpectedStatus').value,
+      };
+
+      if (editIndex !== null) {
+        // Update existing item
+        data[editIndex] = newItem;
+        editIndex = null;
+      } else {
+        // Add new item
+        data.push(newItem);
+      }
+
+      saveToLocalStorage();
+      modal.classList.add('hidden');
+      renderTable();
+    });
+
+    // Edit item function
+    function editItem(index) {
+      editIndex = index;
+      const item = data[index];
+      document.getElementById('itemId').value = item.id;
+      document.getElementById('itemName').value = item.name;
+      document.getElementById('itemCurrentStatus').value = item.currentStatus;
+      document.getElementById('itemExpectedStatus').value = item.expectedStatus;
+      document.getElementById('modalTitle').innerText = 'তথ্য সম্পাদনা করুন';
+      modal.classList.remove('hidden');
+    }
+
+    // Delete item
+    function deleteItem(index) {
+      data.splice(index, 1);
+      saveToLocalStorage();
+      renderTable();
+    }
+
+    // Save to local storage
+    function saveToLocalStorage() {
+      localStorage.setItem('addressData', JSON.stringify(data));
+    }
+
+    // Initial render
+    renderTable();
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <!-- <!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>তথ্য তালিকা</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="container mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <h1 class="text-center text-3xl font-bold mb-6 text-gray-800">তথ্য তালিকা</h1>
+    <div class="overflow-x-auto">
+      <table class="min-w-full table-auto border-collapse border border-gray-300">
+        <thead>
+          <tr class="bg-gray-200 text-gray-700">
+            <th class="border border-gray-300 px-4 py-2 text-center">ক্রমিক নং</th>
+            <th class="border border-gray-300 px-4 py-2 text-center">নাম</th>
+            <th class="border border-gray-300 px-4 py-2 text-center">বর্তমান অবস্থা</th>
+            <th class="border border-gray-300 px-4 py-2 text-center">প্রত্যাশিত অবস্থা</th>
+            <th class="border border-gray-300 px-4 py-2 text-center">অ্যাকশন</th>
+          </tr>
+        </thead>
+        <tbody id="nameTableBody">
+       
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const data = [
+      { id: 1, name: 'মুহাম্মদ আমিন', currentStatus: '', expectedStatus: '' },
+      { id: 2, name: 'মাহমুদ হাসান', currentStatus: '', expectedStatus: '' },
+      { id: 3, name: 'রাফাতুল করীম', currentStatus: '', expectedStatus: '' },
+      { id: 3, name: 'বশির আহমাদ', currentStatus: '', expectedStatus: '' },
+      { id: 4, name: 'নুর আলম', currentStatus: '', expectedStatus: '' },
+      { id: 5, name: 'মুনীরুল ইসলাম', currentStatus: '', expectedStatus: '' },
+      { id: 6, name: 'কাউসার আহমদ', currentStatus: '', expectedStatus: '' },
+      { id: 7, name: 'গুফরান আহমাদ', currentStatus: '', expectedStatus: '' },
+      { id: 8, name: 'ওসামাতুল আবরার', currentStatus: '', expectedStatus: '' },
+      { id: 9, name: 'আহমাদ মাইমুন', currentStatus: '', expectedStatus: '' },
+      { id: 10, name: 'সাইফুল ইসলাম', currentStatus: '', expectedStatus: '' },
+    ];
+
+    const tableBody = document.getElementById('nameTableBody');
+
+    function createTableRow(item) {
+      return `
+        <tr class="hover:bg-gray-100">
+          <td class="border border-gray-300 px-4 py-2 text-center">
+            <span class="text-field">${item.id}</span>
+            <input class="input-field hidden border px-2 py-1 w-full text-center" type="number" value="${item.id}">
+          </td>
+          <td class="border border-gray-300 px-4 py-2 text-center">
+            <span class="text-field">${item.name}</span>
+            <input class="input-field hidden border px-2 py-1 w-full" type="text" value="${item.name}">
+          </td>
+          <td class="border border-gray-300 px-4 py-2 text-center">
+            <span class="text-field">${item.currentStatus}</span>
+            <input class="input-field hidden border px-2 py-1 w-full" type="text" value="${item.currentStatus}">
+          </td>
+          <td class="border border-gray-300 px-4 py-2 text-center">
+            <span class="text-field">${item.expectedStatus}</span>
+            <input class="input-field hidden border px-2 py-1 w-full" type="text" value="${item.expectedStatus}">
+          </td>
+          <td class="border border-gray-300 px-4 py-2 text-center">
+            <button class="edit-btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded">Edit</button>
+            <button class="save-btn bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded hidden">Save</button>
+          </td>
+        </tr>
+      `;
+    }
+
+
+    data.forEach((item) => {
+      tableBody.innerHTML += createTableRow(item);
+    });
+
+   
+    document.querySelectorAll('.edit-btn').forEach((editBtn, index) => {
+      editBtn.addEventListener('click', () => toggleEdit(index, true));
+    });
+
+    document.querySelectorAll('.save-btn').forEach((saveBtn, index) => {
+      saveBtn.addEventListener('click', () => toggleEdit(index, false));
+    });
+
+    function toggleEdit(index, isEditMode) {
+      const row = document.querySelectorAll('tbody tr')[index];
+      const textFields = row.querySelectorAll('.text-field');
+      const inputFields = row.querySelectorAll('.input-field');
+      const editBtn = row.querySelector('.edit-btn');
+      const saveBtn = row.querySelector('.save-btn');
+
+      if (isEditMode) {
+        textFields.forEach((field) => field.classList.add('hidden'));
+        inputFields.forEach((field) => field.classList.remove('hidden'));
+        editBtn.classList.add('hidden');
+        saveBtn.classList.remove('hidden');
+      } else {
+        textFields.forEach((field, i) => {
+          field.textContent = inputFields[i].value;
+        });
+        textFields.forEach((field) => field.classList.remove('hidden'));
+        inputFields.forEach((field) => field.classList.add('hidden'));
+        editBtn.classList.remove('hidden');
+        saveBtn.classList.add('hidden');
+      }
+    }
+  </script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
