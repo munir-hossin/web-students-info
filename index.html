@@ -9,7 +9,7 @@
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="container mx-auto p-6 bg-white shadow-lg rounded-lg">
     <h1 class="text-center text-3xl font-bold mb-6 text-gray-800">তথ্য তালিকা</h1>
-    <button id="addItemBtn" class="mb-4 bg-gray-300 hover:bg-gray-500  py-2 px-4 rounded">Add new Info</button>
+    <button id="addItemBtn" class="mb-4 bg-gray-300 hover:bg-gray-500  py-2 px-4 rounded">তথ্য যোগ করুন</button>
     <div class="overflow-x-auto">
       <table class="min-w-full table-auto border-collapse border border-gray-300">
         <thead>
@@ -47,8 +47,20 @@
 
   <script>
     let data = JSON.parse(localStorage.getItem('addressData')) || [
-      { id: 1, name: 'মোহাম্মদ আমিন', currentStatus: '', expectedStatus: '' },
+      { id: 1, name: 'মুহাম্মদ আমিন', currentStatus: '', expectedStatus: '' },
       { id: 2, name: 'মাহমুদ হাসান', currentStatus: '', expectedStatus: '' },
+      { id: 3, name: 'বশির আহমাদ', currentStatus: '', expectedStatus: '' },
+      { id: 4, name: 'রাফাতুল করীম', currentStatus: '', expectedStatus: '' },
+      { id: 5, name: 'নুর আলম', currentStatus: '', expectedStatus: '' },
+      { id: 6, name: 'মুনিরুল ইসলাম', currentStatus: '', expectedStatus: '' },
+      { id: 7, name: 'কাওসার আহমাদ', currentStatus: '', expectedStatus: '' },
+      { id: 8, name: 'গুফরান আহমাদ', currentStatus: '', expectedStatus: '' },
+      { id: 9, name: 'তসলিম উদ্দীন', currentStatus: '', expectedStatus: '' },
+      { id: 10, name: 'আহমাদ মাইমুন', currentStatus: '', expectedStatus: '' },
+      { id: 11, name: 'ওসামাতুল আবরার', currentStatus: '', expectedStatus: '' },
+      { id: 12, name: 'সাইফুল ইসলাম', currentStatus: '', expectedStatus: '' },
+      { id: 13, name: 'আবু সুফিয়ান', currentStatus: '', expectedStatus: '' },
+      { id: 14, name: 'আব্দুস সালাম', currentStatus: '', expectedStatus: '' },
     ];
 
     let editIndex = null; // Track the index of the item being edited
@@ -209,6 +221,9 @@
       { id: 8, name: 'ওসামাতুল আবরার', currentStatus: '', expectedStatus: '' },
       { id: 9, name: 'আহমাদ মাইমুন', currentStatus: '', expectedStatus: '' },
       { id: 10, name: 'সাইফুল ইসলাম', currentStatus: '', expectedStatus: '' },
+      { id: 11, name: 'আবু সুফিয়ান', currentStatus: '', expectedStatus: '' },
+      { id: 12, name: 'আব্দুস সালাম', currentStatus: '', expectedStatus: '' },
+      { id: 12, name: 'তসলিম  উদ্দিন', currentStatus: '', expectedStatus: '' },
     ];
 
     const tableBody = document.getElementById('nameTableBody');
